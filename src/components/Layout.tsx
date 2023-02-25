@@ -1,7 +1,19 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { useSigninCheck } from 'reactfire'
 import { routes } from '../routes/routes'
 
 const Layout = () => {
+  const {status, data} = useSigninCheck()
+  const router = useNavigate()
+
+  if (status === 'loading') {
+    return null
+  }
+
+  if (!data.signedIn) {
+    router('/login', {replace: true})
+  }
+
   return (
     <div className='min-h-screen bg-gray-100'>
       <header className='w-full p-2 shadow-md bg-blue-600'>

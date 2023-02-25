@@ -1,14 +1,18 @@
-import { FirestoreProvider, useFirebaseApp } from 'reactfire'
+import { FirestoreProvider, useFirebaseApp, AuthProvider } from 'reactfire'
 import { getFirestore } from 'firebase/firestore'
 import Navigation from './routes/Navigation'
+import { getAuth } from 'firebase/auth'
 
 function App() {
-  const firestore = getFirestore(useFirebaseApp())  
-
+  const firebase = useFirebaseApp()  
+  const firestore = getFirestore(firebase)  
+  const auth = getAuth(firebase)
   return (    
-    <FirestoreProvider sdk={firestore}>
-      <Navigation />
-    </FirestoreProvider>
+    <AuthProvider sdk={auth}>
+      <FirestoreProvider sdk={firestore}>
+        <Navigation />
+      </FirestoreProvider>
+    </AuthProvider>
   )
 }
 

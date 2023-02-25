@@ -1,19 +1,29 @@
-import {Formik, Form, Field} from 'formik'
+import { doc } from 'firebase/firestore'
+import { useFirestore } from 'reactfire'
+import {Formik, Form, Field, FormikHelpers} from 'formik'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { dbCollections } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
 import { newAppointmentSchema, newPatientSchema } from '../../schemas'
+import { Appointment, CreateAppointmentDto, CreateAppointmentDtoCV } from '../../types/appointments'
 import { CreateDoctorDtoCV, Doctor } from '../../types/doctors'
 import { CreatePatientDtoCV, Patient } from '../../types/patient'
 import Alert from '../Alert'
 import { specialties } from '../doctors/specialties'
+import Spinner from '../Spinner'
 
 const NewAppointmentForm = () => {
   const { collection } = useCollection<CreateDoctorDtoCV, Doctor>(dbCollections.doctors)
   const { collection: patientsCol } = useCollection<CreatePatientDtoCV, Patient>(dbCollections.patients)
+  const { addDocument: addAppointment } = useCollection<CreateAppointmentDtoCV, Appointment>(dbCollections.appointments)
+  const firestore = useFirestore()
   const [existPatient, setExistPatient] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [doctors, setDoctors] = useState<Doctor[]>([])
+
   const [specialtyValue, setSpecialtyValue] = useState(specialties[0].value)
+  const [date, setDate] = useState('')
+  const [description, setDescription] = useState('')
   const [doctorName, setDoctorName] = useState('')
   const [doctorIdentification, setDoctorIdentification] = useState('')
   const [selectedDoctorId, setSelectedDoctorId] = useState('')
@@ -31,8 +41,7 @@ const NewAppointmentForm = () => {
   }
 
   const handleSelectDoctors = ({ target }: ChangeEvent<HTMLSelectElement>) => {
-    const selectedDoctor = filteredDoctors.find(doctor => doctor.NO_ID_FIELD === target.value)
-    console.log(selectedDoctor)
+    const selectedDoctor = filteredDoctors.find(doctor => doctor.NO_ID_FIELD === target.value)    
     if (!selectedDoctor)  {
       return
     }
@@ -52,19 +61,46 @@ const NewAppointmentForm = () => {
     setExistPatient(true)
   }
 
+  const handleSubmit = async (values: CreateAppointmentDto, { resetForm }: FormikHelpers<CreateAppointmentDto>) => {
+    try {
+      setLoading(true)
+      const searchedPatient = patientsCol.find(patient => patient.identification === patientIdentification)
+      if (!searchedPatient) return
+      const patient = doc(firestore, dbCollections.patients, searchedPatient.NO_ID_FIELD)
+      const doctor = doc(firestore, dbCollections.doctors, selectedDoctorId)
+      const appointmentValues: CreateAppointmentDtoCV = {
+        date: values.date,
+        description: values.description,
+        specialty: values.specialty,
+        patient,
+        doctor    
+      }
+      await addAppointment(appointmentValues)
+      setLoading(false)
+      setDoctorName('')
+      setDoctorIdentification('')
+      setPatientIdentification('')
+      setPatientName('')
+      setSelectedDoctorId('')
+      resetForm()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div className='bg-white rounded-md shadow-md p-2 lg:p-4 lg:pb-6'>
       <Formik
         initialValues={{
-          date: "",
-          specialty: "",
-          description: "",
+          date: date ?? "",
+          specialty: specialtyValue ?? "",
+          description: description ?? "",
           doctorIdentification: doctorIdentification ?? "",
           doctorName: doctorName ?? "",
           patientIdentification: patientIdentification ?? "",
           patientName: patientName ?? "",
         }}
-        onSubmit={() => {}}
+        onSubmit={handleSubmit}
         validationSchema={newAppointmentSchema}
         enableReinitialize
       >
@@ -112,7 +148,7 @@ const NewAppointmentForm = () => {
                       ))
                     }
                   </Field>
-                  {errors.specialty && touched.specialty && <Alert type='error'>{errors.specialty}</Alert>}
+                  {/* {errors.specialty && touched.specialty && <Alert type='error'>{errors.specialty}</Alert>} */}
                 </label>                      
               </div>
               <div className='my-4'>
@@ -204,11 +240,17 @@ const NewAppointmentForm = () => {
                   </label>
                 </div>
               </div>
-              <input
-                type="submit"
-                value="Registrar Doctor"
-                className='bg-blue-600 w-full p-2 block mt-4 uppercase font-bold text-white hover:bg-blue-700 cursor-pointer duration-200'
-              />
+              {
+                loading ? (
+                  <Spinner />
+                ) : (
+                  <input
+                    type="submit"
+                    value="Registrar Cita"
+                    className='bg-blue-600 w-full p-2 block mt-4 uppercase font-bold text-white hover:bg-blue-700 cursor-pointer duration-200'
+                  />
+                )
+              }
             </div>
           </Form>
         )}

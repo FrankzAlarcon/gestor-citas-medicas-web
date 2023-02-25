@@ -33,7 +33,7 @@ const NewDoctorForm = () => {
           name: "",
           email: "",
           age: "",
-          specialty: ""
+          specialty: specialties[0].value ?? ""
         }}
         onSubmit={handleSubmit}
         validationSchema={newDoctorSchema}
@@ -99,7 +99,7 @@ const NewDoctorForm = () => {
                     as="select"
                     className='w-full p-2 border-2 border-gray-700 rounded-md'
                     name="specialty"
-                    id='specialty'
+                    id='specialty'                                        
                   >
                     {
                       specialties.map((specialty) => (

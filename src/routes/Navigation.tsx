@@ -1,12 +1,14 @@
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
 import { options } from '../components/home/options'
 import Layout from '../components/Layout'
+import Login from '../pages/Login'
 import { routes } from './routes'
 
 const Navigation = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path='/login' element={<Login />} />
         <Route path='/' element={<Layout />}>
           {
             routes.map(({path, Component}) => (
