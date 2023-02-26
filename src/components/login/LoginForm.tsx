@@ -20,7 +20,7 @@ const LoginForm = () => {
       const { email, password } = values
       const user = await signInWithEmailAndPassword(auth, email, password)
       if (!user) {
-        
+        return
       }
       navigate('/')
       resetForm()

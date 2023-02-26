@@ -1,4 +1,4 @@
-import AppointmentItem from '../components/appointments/AppointmentIem'
+import AppointmentItem from '../components/appointments/AppointmentItem'
 import { dbCollections } from '../firebase'
 import { useCollection } from '../hooks/useCollection'
 import { Appointment, CreateAppointmentDtoCV } from '../types/appointments'

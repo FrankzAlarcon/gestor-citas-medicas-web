@@ -5,4 +5,6 @@ export const config = {
   storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_APP_ID,
+  user: import.meta.env.VITE_EMAIL,
+  pass: import.meta.env.VITE_PASS
 }

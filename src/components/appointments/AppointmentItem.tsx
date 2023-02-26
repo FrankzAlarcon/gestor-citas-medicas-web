@@ -16,6 +16,7 @@ const AppointmentItem = ({ appointment }: Props) => {
   if (statusDoc === 'loading' || statusPat === 'loading') {
     return <p>Loading...</p>
   }
+  
   return (
     <div className="w-full bg-white shadow-md rounded-md py-2 px-4 max-w-2xl mx-auto">
       <p><span className="font-bold text-gray-900 uppercase text-sm">Fecha: </span>{formatDate(date)}</p>
