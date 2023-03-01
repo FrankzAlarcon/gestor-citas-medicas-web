@@ -1,12 +1,10 @@
 import { describe, test, beforeAll, afterAll, beforeEach, expect } from 'vitest';
 import { MatcherFunction, render, screen } from '@testing-library/react'
 import AppointmentItem from '../AppointmentItem'
-import { auth, db, dbCollections } from '../../../firebase'
+import { db, dbCollections } from '../../../firebase'
 import { doc, getDoc } from 'firebase/firestore';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { Appointment } from '../../../types/appointments';
-import { config } from '../../../firebase/config';
-import { formatDate } from '../../../helpers';
+import { formatDate, login, logout } from '../../../helpers';
 import { specialties } from '../../doctors/specialties';
 import { Doctor } from '../../../types/doctors';
 import { Patient } from '../../../types/patient';
@@ -16,7 +14,7 @@ let doctor: Doctor
 let patient: Patient
 
 beforeAll(async () => {
-  await signInWithEmailAndPassword(auth, config.user, config.pass)
+  await login()
   const appointmentDoc = await getDoc(doc(db, dbCollections.appointments, 'ghFwfaVd6goR14T44a20'))
   appointment = appointmentDoc.data() as Appointment
   const doctorDoc = await getDoc(appointment.doctor)
@@ -31,7 +29,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await signOut(auth)
+  await logout()
 })
 
 describe('AppointmentItem', () => {
@@ -70,16 +68,33 @@ describe('AppointmentItem', () => {
 
     await screen.findByText(findTextWithinSpan('Paciente'))
     await screen.findAllByText(findTextWithinSpan('Cédula:'))
+    await screen.findByText(identification)
 
     await screen.findAllByText(findTextWithinSpan('Nombre:'))
+    await screen.findByText(name)
 
     await screen.findAllByText(findTextWithinSpan('Edad:'))
+    await screen.findAllByText(age)
 
     await screen.findAllByText(findTextWithinSpan('Email:'))    
+    await screen.findByText(email)
 
   })
 
   test('should render doctor info', async () => {
+    const { identification, name, age, email } = doctor
 
+    await screen.findByText(findTextWithinSpan('Doctor(a)'))
+    await screen.findAllByText(findTextWithinSpan('Cédula:'))
+    await screen.findByText(identification)
+
+    await screen.findAllByText(findTextWithinSpan('Nombre:'))
+    await screen.findByText(name)
+
+    await screen.findAllByText(findTextWithinSpan('Edad:'))
+    await screen.findAllByText(age)
+
+    await screen.findAllByText(findTextWithinSpan('Email:'))    
+    await screen.findByText(email)
   })
 })

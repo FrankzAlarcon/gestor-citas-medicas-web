@@ -4,7 +4,7 @@ import {Formik, Form, Field, FormikHelpers} from 'formik'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { dbCollections } from '../../firebase'
 import { useCollection } from '../../hooks/useCollection'
-import { newAppointmentSchema, newPatientSchema } from '../../schemas'
+import { newAppointmentSchema } from '../../schemas'
 import { Appointment, CreateAppointmentDto, CreateAppointmentDtoCV } from '../../types/appointments'
 import { CreateDoctorDtoCV, Doctor } from '../../types/doctors'
 import { CreatePatientDtoCV, Patient } from '../../types/patient'
@@ -12,7 +12,7 @@ import Alert from '../Alert'
 import { specialties } from '../doctors/specialties'
 import Spinner from '../Spinner'
 
-const NewAppointmentForm = () => {
+function NewAppointmentForm() {
   const { collection } = useCollection<CreateDoctorDtoCV, Doctor>(dbCollections.doctors)
   const { collection: patientsCol } = useCollection<CreatePatientDtoCV, Patient>(dbCollections.patients)
   const { addDocument: addAppointment } = useCollection<CreateAppointmentDtoCV, Appointment>(dbCollections.appointments)
@@ -102,7 +102,7 @@ const NewAppointmentForm = () => {
         }}
         onSubmit={handleSubmit}
         validationSchema={newAppointmentSchema}
-        enableReinitialize
+        enableReinitialize        
       >
         {({errors, touched, values}) => (
           <Form>
